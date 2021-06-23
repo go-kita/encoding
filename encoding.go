@@ -7,9 +7,10 @@ import (
 	"strings"
 	"unsafe"
 
-	"go.uber.org/atomic"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/ianaindex"
+
+	"go.uber.org/atomic"
 )
 
 // encodingKey is context key for encoding.Encoding
@@ -55,12 +56,12 @@ func WithEncoding(ctx context.Context, encoding encoding.Encoding) context.Conte
 }
 
 // FromContext tries to extract encoding from the context. If no encoding can be
-// found, it returns nil and an error.
-func FromContext(ctx context.Context) (encoding.Encoding, error) {
+// found, it returns nil.
+func FromContext(ctx context.Context) encoding.Encoding {
 	if e, ok := ctx.Value(encodingKey{}).(encoding.Encoding); ok {
-		return e, nil
+		return e
 	}
-	return nil, errNoEncoding
+	return nil
 }
 
 // IsErrNoEncoding returns a boolean indicating whether the error is can not
@@ -103,6 +104,7 @@ var _marshalers = atomic.NewUnsafePointer(unsafe.Pointer(&map[string]Marshaler{}
 // RegisterMarshaler register a Marshaler with a specific type name. The registered
 // Marshaler can be retrieve by the same type name later.
 // It more that one Marshaler registered by the same type name, the later one wins.
+// This function will ignore the case of the name.
 func RegisterMarshaler(name string, marshaler Marshaler) Marshaler {
 	if len(name) == 0 || marshaler == nil {
 		return nil
@@ -129,6 +131,7 @@ func RegisterMarshaler(name string, marshaler Marshaler) Marshaler {
 
 // GetMarshaler retrieve the registered Marshaler with type name.
 // If no marshaler is registered with the name, nil will be returned.
+// This function will ignore the case of the name.
 func GetMarshaler(name string) Marshaler {
 	return (*(*map[string]Marshaler)(_marshalers.Load()))[name]
 }
@@ -138,6 +141,7 @@ var _unmarshalers = atomic.NewUnsafePointer(unsafe.Pointer(&map[string]Unmarshal
 // RegisterUnmarshaler register a Unmarshaler with a specific type name. The registered
 // Unmarshaler can be retrieve by the same type name later.
 // It more that one Unmarshaler registered by the same type name, the later one wins.
+// This function will ignore the case of the name.
 func RegisterUnmarshaler(name string, unmarshaler Unmarshaler) Unmarshaler {
 	if len(name) == 0 || unmarshaler == nil {
 		return nil
@@ -164,6 +168,7 @@ func RegisterUnmarshaler(name string, unmarshaler Unmarshaler) Unmarshaler {
 
 // GetUnmarshaler retrieve the registered Unmarshaler with type name.
 // If no unmarshaler is registered with the name, nil will be returned.
+// This function will ignore the case of the name.
 func GetUnmarshaler(name string) Unmarshaler {
 	return (*(*map[string]Unmarshaler)(_unmarshalers.Load()))[name]
 }

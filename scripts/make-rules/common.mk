@@ -62,8 +62,10 @@ endif
 FIND := find . ! -path './third_party/*' ! -path './vendor/*'
 ifeq ($(GOOS),darwin)
 	XARGS := gxargs --no-run-if-empty
+	GREP := grep
 else
 	XARGS := xargs --no-run-if-empty
+	GREP := egrep
 endif
 
 # Makefile settings

@@ -32,18 +32,15 @@ func TestMustWithCharset(t *testing.T) {
 
 func TestFromContext(t *testing.T) {
 	t.Run("from_background", func(t *testing.T) {
-		_, err := FromContext(context.Background())
-		if !IsErrNoEncoding(err) {
-			t.Errorf("expect errNoEncoding, but got %q", err)
+		e := FromContext(context.Background())
+		if e != nil {
+			t.Errorf("expect nil, but got %v", e)
 		}
 	})
 	t.Run("common", func(t *testing.T) {
 		e, _ := ianaindex.IANA.Encoding("ISO-8859-1")
 		ctx := context.WithValue(context.Background(), encodingKey{}, e)
-		ee, err := FromContext(ctx)
-		if err != nil {
-			t.Errorf("expect no err, but got %v", err)
-		}
+		ee := FromContext(ctx)
 		if ee != e {
 			t.Errorf("expect %v but got %v", e, ee)
 		}
