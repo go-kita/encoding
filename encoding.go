@@ -3,7 +3,6 @@ package encoding
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"unsafe"
 
@@ -19,18 +18,6 @@ type encodingKey struct {
 
 // errNoEncoding is the error if no encoding.Encoding can be found.
 var errNoEncoding = errors.New("encoding: can not find Encoding")
-
-// MustWithCharset wraps an encoding of charset name to the context and returns
-// the new context.
-// If no encoding of the charset can be found or the runtime platform does not
-// supported the charset, it will raise a panic.
-func MustWithCharset(ctx context.Context, charset string) context.Context {
-	withCharset, err := WithCharset(ctx, charset)
-	if err != nil {
-		panic(fmt.Errorf("can not resolve charset: %w", err))
-	}
-	return withCharset
-}
 
 // WithCharset wraps an encoding of charset name to the context and returns the
 // new context.
