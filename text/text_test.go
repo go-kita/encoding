@@ -53,14 +53,6 @@ func (n no) String() string {
 
 func TestCodec_Marshal(t *testing.T) {
 	bg := context.Background()
-	ascii, err := encoding.WithCharset(bg, "ISO-8859-1")
-	if err != nil {
-		t.Fatal(err)
-	}
-	gbk, err := encoding.WithCharset(bg, "GBK")
-	if err != nil {
-		t.Fatal(err)
-	}
 	tests := []struct {
 		ctx       context.Context
 		v         interface{}
@@ -115,18 +107,6 @@ func TestCodec_Marshal(t *testing.T) {
 			wantData:  []byte{0xE4, 0xB8, 0xAD, 0xE6, 0x96, 0x87},
 			wantError: false,
 		},
-		{
-			ctx:       ascii,
-			v:         "中文",
-			wantData:  nil,
-			wantError: true,
-		},
-		{
-			ctx:       gbk,
-			v:         "中文",
-			wantData:  []byte{0xD6, 0xD0, 0xCE, 0xC4},
-			wantError: false,
-		},
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
@@ -147,12 +127,6 @@ func TestCodec_Marshal(t *testing.T) {
 
 func TestCodec_Unmarshal(t *testing.T) {
 	bg := context.Background()
-	gbk, err := encoding.WithCharset(bg, "GBK")
-	if err != nil {
-		t.Fatal(err)
-	}
-	str := ""
-	z := "中文"
 	tests := []struct {
 		ctx     context.Context
 		data    []byte
@@ -208,13 +182,6 @@ func TestCodec_Unmarshal(t *testing.T) {
 			v:       123,
 			wantV:   nil,
 			wantErr: true,
-		},
-		{
-			ctx:     gbk,
-			data:    []byte{0xD6, 0xD0, 0xCE, 0xC4},
-			v:       &str,
-			wantV:   &z,
-			wantErr: false,
 		},
 	}
 	for i, test := range tests {

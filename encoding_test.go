@@ -2,68 +2,9 @@ package encoding
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"unsafe"
-
-	"golang.org/x/text/encoding"
-	"golang.org/x/text/encoding/ianaindex"
 )
-
-func TestMustWithCharset(t *testing.T) {
-	t.Run("expect_err", func(t *testing.T) {
-		_, err := WithCharset(context.Background(), "my-charset-xxx")
-		if err == nil {
-			t.Errorf("expect an error, got nil")
-		}
-	})
-	t.Run("common", func(t *testing.T) {
-		ctx, err := WithCharset(context.Background(), "ISO-8859-1")
-		if err != nil {
-			t.Errorf("expect nil, got %v", err)
-		}
-		e, ok := ctx.Value(encodingKey{}).(encoding.Encoding)
-		if !ok || e == nil {
-			t.Errorf("expect got Encoding but not")
-		}
-	})
-}
-
-func TestFromContext(t *testing.T) {
-	t.Run("from_background", func(t *testing.T) {
-		e := FromContext(context.Background())
-		if e != nil {
-			t.Errorf("expect nil, but got %v", e)
-		}
-	})
-	t.Run("common", func(t *testing.T) {
-		e, _ := ianaindex.IANA.Encoding("ISO-8859-1")
-		ctx := context.WithValue(context.Background(), encodingKey{}, e)
-		ee := FromContext(ctx)
-		if ee != e {
-			t.Errorf("expect %v but got %v", e, ee)
-		}
-	})
-}
-
-func TestIsErrNoEncoding(t *testing.T) {
-	tests := []struct {
-		err  error
-		want bool
-	}{
-		{fmt.Errorf("err: abc"), false},
-		{errNoEncoding, true},
-		{fmt.Errorf("biz: %w", errNoEncoding), true},
-	}
-	for i, test := range tests {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			got := IsErrNoEncoding(test.err)
-			if got != test.want {
-				t.Errorf("want %t, got %t", test.want, got)
-			}
-		})
-	}
-}
 
 var _ Marshaler = nopMarshaler{}
 

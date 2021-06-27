@@ -23,7 +23,7 @@ type codec struct {
 
 var _codec = &codec{}
 
-func (s *codec) Marshal(ctx context.Context, v interface{}) (data []byte, err error) {
+func (s *codec) Marshal(_ context.Context, v interface{}) (data []byte, err error) {
 	switch vv := v.(type) {
 	case se.TextMarshaler:
 		data, err = vv.MarshalText()
@@ -37,14 +37,10 @@ func (s *codec) Marshal(ctx context.Context, v interface{}) (data []byte, err er
 	if err != nil {
 		return nil, err
 	}
-	ee := encoding.FromContext(ctx)
-	if ee != nil {
-		return ee.NewEncoder().Bytes(data)
-	}
 	return data, nil
 }
 
-func (s *codec) Unmarshal(ctx context.Context, data []byte, v interface{}) (err error) {
+func (s *codec) Unmarshal(_ context.Context, data []byte, v interface{}) (err error) {
 	rv := reflect.ValueOf(v)
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
@@ -54,13 +50,6 @@ func (s *codec) Unmarshal(ctx context.Context, data []byte, v interface{}) (err 
 			rv.Set(reflect.New(rv.Type().Elem()))
 		}
 		rv = rv.Elem()
-	}
-	ee := encoding.FromContext(ctx)
-	if ee != nil {
-		data, err = ee.NewDecoder().Bytes(data)
-		if err != nil {
-			return err
-		}
 	}
 	switch vv := v.(type) {
 	case se.TextUnmarshaler:

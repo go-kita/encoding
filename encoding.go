@@ -2,60 +2,11 @@ package encoding
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"unsafe"
 
-	"golang.org/x/text/encoding"
-	"golang.org/x/text/encoding/ianaindex"
-
 	"go.uber.org/atomic"
 )
-
-// encodingKey is context key for encoding.Encoding
-type encodingKey struct {
-}
-
-// errNoEncoding is the error if no encoding.Encoding can be found.
-var errNoEncoding = errors.New("encoding: can not find Encoding")
-
-// WithCharset wraps an encoding of charset name to the context and returns the
-// new context.
-// If no encoding of the charset can be found or the runtime platform does not
-// supported the charset, it will return the origin context and a non-nil error.
-func WithCharset(ctx context.Context, charset string) (context.Context, error) {
-	e, err := ianaindex.IANA.Encoding(charset)
-	if err != nil {
-		return ctx, err
-	}
-	if e == nil {
-		return ctx, errNoEncoding
-	}
-	return WithEncoding(ctx, e), nil
-}
-
-// WithEncoding wraps an encoding to the context and returns the new context.
-func WithEncoding(ctx context.Context, encoding encoding.Encoding) context.Context {
-	if encoding == nil {
-		return ctx
-	}
-	return context.WithValue(ctx, encodingKey{}, encoding)
-}
-
-// FromContext tries to extract encoding from the context. If no encoding can be
-// found, it returns nil.
-func FromContext(ctx context.Context) encoding.Encoding {
-	if e, ok := ctx.Value(encodingKey{}).(encoding.Encoding); ok {
-		return e
-	}
-	return nil
-}
-
-// IsErrNoEncoding returns a boolean indicating whether the error is can not
-// find encoding. The function use errors.Is, so wrapped errors are supported.
-func IsErrNoEncoding(err error) bool {
-	return errors.Is(err, errNoEncoding)
-}
 
 // Marshaler can encode a value of supported type into binary data.
 type Marshaler interface {
