@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"golang.org/x/text/encoding/ianaindex"
 	"testing"
+
+	"golang.org/x/text/encoding/ianaindex"
 )
 
 var _ Marshaler = (*errMarshaler)(nil)

@@ -6,9 +6,10 @@ import (
 	se "encoding"
 	"errors"
 	"fmt"
-	"github.com/go-kita/encoding"
 	"reflect"
 	"testing"
+
+	"github.com/go-kita/encoding"
 )
 
 func TestRegister(t *testing.T) {
