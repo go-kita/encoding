@@ -11,22 +11,21 @@ import (
 )
 
 func TestMustWithCharset(t *testing.T) {
-	t.Run("expect_panic", func(t *testing.T) {
-		defer func() {
-			if r := recover(); r == nil {
-				t.Errorf("expect panic but not")
-			}
-		}()
-		MustWithCharset(context.Background(), "my-charset-xxx")
+	t.Run("expect_err", func(t *testing.T) {
+		_, err := WithCharset(context.Background(), "my-charset-xxx")
+		if err == nil {
+			t.Errorf("expect an error, got nil")
+		}
 	})
 	t.Run("common", func(t *testing.T) {
-		ctx := MustWithCharset(context.Background(), "ISO-8859-1")
+		ctx, err := WithCharset(context.Background(), "ISO-8859-1")
+		if err != nil {
+			t.Errorf("expect nil, got %v", err)
+		}
 		e, ok := ctx.Value(encodingKey{}).(encoding.Encoding)
 		if !ok || e == nil {
 			t.Errorf("expect got Encoding but not")
 		}
-		name, _ := ianaindex.IANA.Name(e)
-		t.Logf("encoding name: %s", name)
 	})
 }
 
