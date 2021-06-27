@@ -127,6 +127,8 @@ func TestCodec_Marshal(t *testing.T) {
 
 func TestCodec_Unmarshal(t *testing.T) {
 	bg := context.Background()
+	str := ""
+	expect := "str"
 	tests := []struct {
 		ctx     context.Context
 		data    []byte
@@ -168,6 +170,13 @@ func TestCodec_Unmarshal(t *testing.T) {
 			v:       (*string)(nil),
 			wantV:   nil,
 			wantErr: true,
+		},
+		{
+			ctx:     bg,
+			data:    []byte("str"),
+			v:       &str,
+			wantV:   &expect,
+			wantErr: false,
 		},
 		{
 			ctx:     bg,
