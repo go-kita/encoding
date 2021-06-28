@@ -18,6 +18,9 @@ func init() {
 // Name is type name.
 const Name = "text"
 
+var _ encoding.Marshaler = (*codec)(nil)
+var _ encoding.Unmarshaler = (*codec)(nil)
+
 type codec struct {
 }
 
