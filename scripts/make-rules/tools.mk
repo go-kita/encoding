@@ -2,8 +2,8 @@
 # Makefile helper functions for tools
 #
 
-CANDIDATE_DEP_TOOLS := swagger mockgen gotests gsemver git-chglog github-release coscmd protoc-gen-go cfssl addlicense
-DEP_TOOLS ?= golangci-lint go-junit-report golines go-mod-outdated goimports go-gitlint
+CANDIDATE_DEP_TOOLS := swagger mockgen gsemver git-chglog github-release coscmd protoc-gen-go cfssl addlicense
+DEP_TOOLS ?= golangci-lint go-junit-report golines go-mod-outdated goimports go-gitlint gotests
 ifeq ($(GOOS),darwin)
 	DEP_TOOLS += gawk gxargs
 endif
@@ -67,3 +67,7 @@ ifeq ($(GOOS),darwin)
 else
 	@echo "You need not install findutils, for your OS: $(GOOS)_$(GOARCH)"
 endif
+
+.PHONY: install.gotests
+install.gotests:
+	@$(GO) get -u github.com/cweill/gotests/...
