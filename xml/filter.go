@@ -117,7 +117,7 @@ func (o *optMarshaler) Marshal(ctx context.Context, v interface{}) ([]byte, erro
 	return o.marshaler.Marshal(ctx, v)
 }
 
-// WithEncoderOption returns a proxy of encoding.Marshaler
+// WithEncoderOption returns a proxy of encoding.Marshaler.
 // It wraps EncoderOption into context.Context, and then calls Marshal method
 // of the underlying encoding.Marshaler with the new context.Context.
 func WithEncoderOption(marshaler encoding.Marshaler, opt ...EncoderOption) encoding.Marshaler {

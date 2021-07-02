@@ -3,7 +3,6 @@ package xml
 import (
 	"context"
 	"encoding/xml"
-	"github.com/go-kita/encoding"
 	"reflect"
 	"testing"
 )
@@ -23,6 +22,7 @@ func Test_codec_Marshal(t *testing.T) {
 		ctx context.Context
 		v   interface{}
 	}
+	_codec := &codec{buf: _bufPool}
 	tests := []struct {
 		name    string
 		c       *codec
@@ -104,6 +104,7 @@ func Test_codec_Unmarshal(t *testing.T) {
 		ID:   1,
 		Name: "n",
 	}
+	_codec := &codec{buf: _bufPool}
 	tests := []struct {
 		name    string
 		c       *codec
@@ -177,16 +178,5 @@ func Test_codec_Unmarshal(t *testing.T) {
 				}
 			}
 		})
-	}
-}
-
-func TestRegister(t *testing.T) {
-	m := encoding.GetMarshaler(Name)
-	if m != _codec {
-		t.Errorf("expect Marshaler of name %s is _codec, but not", Name)
-	}
-	u := encoding.GetUnmarshaler(Name)
-	if u != _codec {
-		t.Errorf("expect Unmarshaler of name %s is _codec, but not", Name)
 	}
 }

@@ -70,6 +70,6 @@ func (s *codec) Unmarshal(_ context.Context, data []byte, v interface{}) (err er
 
 // Register register marshaler/unmarshaler.
 func Register(name string) {
-	encoding.RegisterMarshaler(name, _codec)
-	encoding.RegisterUnmarshaler(name, _codec)
+	encoding.RegisterMarshaler(name, func() encoding.Marshaler { return &codec{} })
+	encoding.RegisterUnmarshaler(name, func() encoding.Unmarshaler { return &codec{} })
 }

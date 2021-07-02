@@ -23,11 +23,9 @@ type codec struct {
 	buf *sync.Pool
 }
 
-var _codec = &codec{
-	buf: &sync.Pool{
-		New: func() interface{} {
-			return &bytes.Buffer{}
-		},
+var _bufPool = &sync.Pool{
+	New: func() interface{} {
+		return &bytes.Buffer{}
 	},
 }
 
@@ -59,6 +57,6 @@ func (c *codec) Unmarshal(ctx context.Context, data []byte, v interface{}) error
 
 // Register register marshaler/unmarshaler.
 func Register(name string) {
-	encoding.RegisterMarshaler(name, _codec)
-	encoding.RegisterUnmarshaler(name, _codec)
+	encoding.RegisterMarshaler(name, func() encoding.Marshaler { return &codec{buf: _bufPool} })
+	encoding.RegisterUnmarshaler(name, func() encoding.Unmarshaler { return &codec{buf: _bufPool} })
 }

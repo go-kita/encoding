@@ -3,9 +3,10 @@ package xml
 import (
 	"context"
 	"encoding/xml"
-	"golang.org/x/text/encoding/simplifiedchinese"
 	"reflect"
 	"testing"
+
+	"golang.org/x/text/encoding/simplifiedchinese"
 
 	"github.com/go-kita/encoding"
 )
@@ -93,6 +94,7 @@ func Test_optUnmarshaler_Unmarshal(t *testing.T) {
 	}
 	nop := func(decoder *xml.Decoder) {
 	}
+	_codec := &codec{buf: _bufPool}
 	strV := ""
 	tests := []struct {
 		name    string
@@ -142,6 +144,7 @@ func TestWithDecoderOption(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	_codec := &codec{buf: _bufPool}
 	u := WithDecoderOption(_codec, WithCharsetReader(IanaTransformCharsetReader()))
 	strV := ""
 	strW := "中文"
@@ -205,6 +208,7 @@ func TestWithEncoderOption(t *testing.T) {
 	type val struct {
 		V string `xml:"v"`
 	}
+	_codec := &codec{buf: _bufPool}
 	tests := []struct {
 		name string
 		args args

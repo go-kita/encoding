@@ -8,20 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
-
-	"github.com/go-kita/encoding"
 )
-
-func TestRegister(t *testing.T) {
-	m := encoding.GetMarshaler(Name)
-	if m != _codec {
-		t.Errorf("expect Marshaler of name %q is _codec, but not", Name)
-	}
-	u := encoding.GetUnmarshaler(Name)
-	if u != _codec {
-		t.Errorf("expect Unmarshaler of name %q is _codec, but not", Name)
-	}
-}
 
 var _ se.TextMarshaler = (*textual)(nil)
 var _ se.TextUnmarshaler = (*textual)(nil)

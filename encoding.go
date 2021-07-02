@@ -37,76 +37,88 @@ type Unmarshaler interface {
 	Unmarshal(ctx context.Context, data []byte, v interface{}) error
 }
 
-var _marshalers = atomic.NewUnsafePointer(unsafe.Pointer(&map[string]Marshaler{}))
+// MarshalerSupplier is a function which supplies Marshalers.
+type MarshalerSupplier func() Marshaler
 
-// RegisterMarshaler register a Marshaler with a specific type name. The registered
-// Marshaler can be retrieve by the same type name later.
-// It more that one Marshaler registered by the same type name, the later one wins.
+// UnmarshalerSupplier is a function which supplies Unmarshalers.
+type UnmarshalerSupplier func() Unmarshaler
+
+var _marshalerSuppliers = atomic.NewUnsafePointer(unsafe.Pointer(&map[string]MarshalerSupplier{}))
+
+// RegisterMarshaler register a MarshalerSupplier with a specific type name.
+// It more that one MarshalerSupplier registered by the same type name, the later one wins.
 // This function will ignore the case of the name.
-func RegisterMarshaler(name string, marshaler Marshaler) Marshaler {
-	if len(name) == 0 || marshaler == nil {
+func RegisterMarshaler(name string, supplier MarshalerSupplier) MarshalerSupplier {
+	if len(name) == 0 || supplier == nil {
 		return nil
 	}
 	name = strings.ToLower(name)
 	for {
-		o := (*map[string]Marshaler)(_marshalers.Load())
+		o := (*map[string]MarshalerSupplier)(_marshalerSuppliers.Load())
 		om, exist := (*o)[name]
-		var mp map[string]Marshaler
+		var mp map[string]MarshalerSupplier
 		if exist {
-			mp = make(map[string]Marshaler, len(*o))
+			mp = make(map[string]MarshalerSupplier, len(*o))
 		} else {
-			mp = make(map[string]Marshaler, len(*o)+1)
+			mp = make(map[string]MarshalerSupplier, len(*o)+1)
 		}
 		for n := range *o {
 			mp[n] = (*o)[n]
 		}
-		mp[name] = marshaler
-		if _marshalers.CAS(unsafe.Pointer(o), unsafe.Pointer(&mp)) {
+		mp[name] = supplier
+		if _marshalerSuppliers.CAS(unsafe.Pointer(o), unsafe.Pointer(&mp)) {
 			return om
 		}
 	}
 }
 
-// GetMarshaler retrieve the registered Marshaler with type name.
-// If no marshaler is registered with the name, nil will be returned.
+// GetMarshaler retrieve a Marshaler by type name.
+// If no MarshalerSupplier is registered with the name, nil will be returned.
 // This function will ignore the case of the name.
 func GetMarshaler(name string) Marshaler {
-	return (*(*map[string]Marshaler)(_marshalers.Load()))[name]
+	name = strings.ToLower(name)
+	if supplier := (*(*map[string]MarshalerSupplier)(_marshalerSuppliers.Load()))[name]; supplier != nil {
+		return supplier()
+	}
+	return nil
 }
 
-var _unmarshalers = atomic.NewUnsafePointer(unsafe.Pointer(&map[string]Unmarshaler{}))
+var _unmarshalerSuppliers = atomic.NewUnsafePointer(unsafe.Pointer(&map[string]UnmarshalerSupplier{}))
 
-// RegisterUnmarshaler register a Unmarshaler with a specific type name. The registered
-// Unmarshaler can be retrieve by the same type name later.
-// It more that one Unmarshaler registered by the same type name, the later one wins.
+// RegisterUnmarshaler register a UnmarshalerSupplier with a specific type name.
+// It more that one UnmarshalerSupplier registered by the same type name, the later one wins.
 // This function will ignore the case of the name.
-func RegisterUnmarshaler(name string, unmarshaler Unmarshaler) Unmarshaler {
-	if len(name) == 0 || unmarshaler == nil {
+func RegisterUnmarshaler(name string, supplier UnmarshalerSupplier) UnmarshalerSupplier {
+	if len(name) == 0 || supplier == nil {
 		return nil
 	}
 	name = strings.ToLower(name)
 	for {
-		o := (*map[string]Unmarshaler)(_unmarshalers.Load())
+		o := (*map[string]UnmarshalerSupplier)(_unmarshalerSuppliers.Load())
 		ou, exist := (*o)[name]
-		var mp map[string]Unmarshaler
+		var mp map[string]UnmarshalerSupplier
 		if exist {
-			mp = make(map[string]Unmarshaler, len(*o))
+			mp = make(map[string]UnmarshalerSupplier, len(*o))
 		} else {
-			mp = make(map[string]Unmarshaler, len(*o)+1)
+			mp = make(map[string]UnmarshalerSupplier, len(*o)+1)
 		}
 		for n := range *o {
 			mp[n] = (*o)[n]
 		}
-		mp[name] = unmarshaler
-		if _unmarshalers.CAS(unsafe.Pointer(o), unsafe.Pointer(&mp)) {
+		mp[name] = supplier
+		if _unmarshalerSuppliers.CAS(unsafe.Pointer(o), unsafe.Pointer(&mp)) {
 			return ou
 		}
 	}
 }
 
-// GetUnmarshaler retrieve the registered Unmarshaler with type name.
-// If no unmarshaler is registered with the name, nil will be returned.
+// GetUnmarshaler retrieve an Unmarshaler by type name.
+// If no UnmarshalerSupplier is registered with the name, nil will be returned.
 // This function will ignore the case of the name.
 func GetUnmarshaler(name string) Unmarshaler {
-	return (*(*map[string]Unmarshaler)(_unmarshalers.Load()))[name]
+	name = strings.ToLower(name)
+	if supplier := (*(*map[string]UnmarshalerSupplier)(_unmarshalerSuppliers.Load()))[name]; supplier != nil {
+		return supplier()
+	}
+	return nil
 }
